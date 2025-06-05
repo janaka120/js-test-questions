@@ -645,3 +645,83 @@ const fileData = {
 };
 
 // console.log("printFilePath >>", printFilePath(fileData));
+
+// ===>>>> implement retry mechanism to fail api
+async function retryFn(callback, retryCount, delay) {
+  try {
+    const result = await callback();
+    return result;
+  } catch (e) {
+    if (retryCount > 0) {
+      console.log("retry time start >>>>", retryCount);
+      await new Promise((resolve) => setTimeout(resolve, delay));
+      console.log("retry time end >>>>");
+      return retryFn(callback, retryCount - 1, delay);
+    } else {
+      throw new Error("Api Retry Fail");
+    }
+  }
+}
+
+function getUsers() {
+  console.log("Fetch User >>>");
+  const promise = new Promise((resolve, reject) => {
+    // fetch all users
+    const statusCode = 500;
+    if (statusCode === 500) {
+      reject("Fail Api");
+    } else {
+      resolve("Success Api");
+    }
+  });
+
+  return promise;
+}
+
+// retryFn(getUsers, 4, 3000)
+//   .then((result) => console.log("Final Result >>", result))
+//   .catch((error) => console.log("Final error >>", error));
+
+// ==== <<<<<<<<
+
+// Function composition example
+// Function composition is the process of combining two or more function to produce a new function or perform some computation
+function composeFn(fn, gn) {
+  return function (x) {
+    return fn(gn(x));
+  };
+}
+
+function fn(y) {
+  return y * 2;
+}
+
+function gn(z) {
+  return z + 2;
+}
+
+const composedFn = composeFn(fn, gn);
+// console.log(composedFn(3));
+
+// ======== <<<<<<
+var foo = "foo";
+function bar() {
+  setTimeout(() => {
+    console.log("timeout >>", foo);
+  }, 0);
+
+  console.log("1 foo >>", foo); // undefined
+  var foo = "bar";
+  console.log("2 bar() >>", bar()); // undefined (nothing return from bar())
+  console.log("3 foo >>", foo); // bar
+
+  function bar() {
+    var foo = "barTwo";
+  }
+  var foo = "foo";
+  console.log("4 foo >>>", foo);
+}
+
+bar();
+console.log("foo 5 >>>", foo);
+// ===== >>>>
